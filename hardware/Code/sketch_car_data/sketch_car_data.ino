@@ -17,19 +17,31 @@
 
 // RemoteXY configurate  
 #pragma pack(push, 1)
-uint8_t RemoteXY_CONF[] =   // 50 bytes
-  { 255,4,0,0,0,43,0,16,31,0,5,0,62,20,30,30,2,26,31,2,
-  1,39,5,22,11,2,26,31,31,70,79,82,87,65,82,68,0,66,65,67,
-  75,0,4,0,15,26,7,18,2,26 };
+uint8_t RemoteXY_CONF[] =   // 120 bytes
+  { 255,11,0,11,0,113,0,16,31,0,7,53,10,20,20,5,2,26,2,1,
+  0,64,14,12,12,2,31,70,0,1,0,64,42,12,12,2,31,66,0,1,
+  0,49,29,12,12,2,31,76,0,1,0,77,29,12,12,2,31,82,0,1,
+  0,21,6,12,12,2,31,82,82,0,1,0,6,6,12,12,2,31,82,76,
+  0,3,5,17,35,8,22,2,26,1,0,49,11,12,12,2,31,70,76,0,
+  1,0,78,11,12,12,2,31,70,82,0,67,4,10,27,20,5,2,26,11 };
   
 // this structure defines all the variables and events of your control interface 
 struct {
 
     // input variables
-  int8_t joystick_1_x; // from -100 to 100  
-  int8_t joystick_1_y; // from -100 to 100  
-  uint8_t switch_1; // =1 if switch ON and =0 if OFF 
-  int8_t slider_1; // =0..100 slider position 
+  int16_t edit_speed;  // 32767.. +32767 
+  uint8_t btn_forward; // =1 if button pressed, else =0 
+  uint8_t btn_back; // =1 if button pressed, else =0 
+  uint8_t btn_left; // =1 if button pressed, else =0 
+  uint8_t btn_right; // =1 if button pressed, else =0 
+  uint8_t btn_rotate_right; // =1 if button pressed, else =0 
+  uint8_t btn_rotate_left; // =1 if button pressed, else =0 
+  uint8_t select_speed; // =0 if select position A, =1 if position B, =2 if position C, ... 
+  uint8_t btn_front_left; // =1 if button pressed, else =0 
+  uint8_t btn_front_right; // =1 if button pressed, else =0 
+
+    // output variables
+  char txt_speed[11];  // string UTF8 end zero 
 
     // other variable
   uint8_t connect_flag;  // =1 if wire connected, else =0 
@@ -71,16 +83,38 @@ void setup() {
 void loop() {
   RemoteXY_Handler ();
   int active = 0;
-  active = (RemoteXY.switch_1==0)?2:1;
   int speed = 0;
-  speed = RemoteXY.slider_1;
-  int carSpeed = speed*2;
-  analogWrite(motorSpeed, carSpeed);
+  if(RemoteXY.connect_flag == 1){
+    if(RemoteXY.btn_forward==1){
+      active = 1;
+    }else if(RemoteXY.btn_back==1){
+      active = 2;
+    }else if(RemoteXY.btn_left==1){
+      active = 3;
+    }else if(RemoteXY.btn_right==1){
+      active = 4;
+    }else if(RemoteXY.btn_rotate_right==1){
+      active = 5;
+    }else if(RemoteXY.btn_rotate_left==1){
+      active = 6;
+    }else if(RemoteXY.btn_front_left==1){
+      active = 7;
+    }else if(RemoteXY.btn_front_right==1){
+      active = 8;
+    }
+    speed = RemoteXY.select_speed*60;
+    sprintf(RemoteXY.txt_speed, "%d", speed);
+  }else{
+    active = 0;
+    speed = 0;
+  }
+  
+  analogWrite(motorSpeed, speed);
   carMove(active);
 }
 
 
-// 0: stop 1: Forward 2: Backward
+// 0: stop 1: Forward 2: Backward 3: Left 4: Right 5: Rotate Right 6 : Rotate Left 7: front left 8: front right
 void carMove(int active){
   if(active == 0){
     for(int i = 1; i <= 4; i++){
@@ -94,10 +128,40 @@ void carMove(int active){
     for(int i = 1; i <= 4; i++){
       tiresMove(i, 2);
     }
+  }else if(active == 3){
+    tiresMove(1, 1);
+    tiresMove(2, 1);
+    tiresMove(3, 2);
+    tiresMove(4, 2);
+  }else if(active == 4){
+    tiresMove(1, 2);
+    tiresMove(2, 2);
+    tiresMove(3, 1);
+    tiresMove(4, 1);
+  }else if(active == 5){
+    tiresMove(1, 1);
+    tiresMove(2, 2);
+    tiresMove(3, 1);
+    tiresMove(4, 2);
+  }else if(active == 6){
+    tiresMove(1, 2);
+    tiresMove(2, 1);
+    tiresMove(3, 2);
+    tiresMove(4, 1);
+  }else if(active == 7){
+    tiresMove(1, 0);
+    tiresMove(2, 1);
+    tiresMove(3, 2);
+    tiresMove(4, 0);
+  }else if(active == 8){
+    tiresMove(1, 0);
+    tiresMove(2, 2);
+    tiresMove(3, 1);
+    tiresMove(4, 0);
   }
 }
 
-// tire 1: Left Front 2: Right Front 3: Left Rear 4: Right Rear  direction 0: stop  1: forward 2: backward
+// tire 1: Left Front 2: Right Rear 3: Left Rear 4: Right Front  direction 0: stop  1: forward 2: backward
 void tiresMove(int tire, int direction){
   switch (tire){  
   case 1:
