@@ -1,0 +1,1 @@
+gt_image/0001.png gt_binary_image/0001.png gt_instance_image/0001.png
