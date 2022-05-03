@@ -129,15 +129,15 @@ void carMove(int active){
       tiresMove(i, 2);
     }
   }else if(active == 3){
-    tiresMove(1, 1);
-    tiresMove(2, 1);
-    tiresMove(3, 2);
-    tiresMove(4, 2);
-  }else if(active == 4){
     tiresMove(1, 2);
     tiresMove(2, 2);
     tiresMove(3, 1);
     tiresMove(4, 1);
+  }else if(active == 4){
+    tiresMove(1, 1);
+    tiresMove(2, 1);
+    tiresMove(3, 2);
+    tiresMove(4, 2);
   }else if(active == 5){
     tiresMove(1, 1);
     tiresMove(2, 2);
@@ -149,15 +149,15 @@ void carMove(int active){
     tiresMove(3, 2);
     tiresMove(4, 1);
   }else if(active == 7){
-    tiresMove(1, 0);
-    tiresMove(2, 1);
-    tiresMove(3, 2);
-    tiresMove(4, 0);
+    tiresMove(1, 2);
+    tiresMove(2, 0);
+    tiresMove(3, 0);
+    tiresMove(4, 1);
   }else if(active == 8){
-    tiresMove(1, 0);
-    tiresMove(2, 2);
-    tiresMove(3, 1);
-    tiresMove(4, 0);
+    tiresMove(1, 1);
+    tiresMove(2, 0);
+    tiresMove(3, 0);
+    tiresMove(4, 2);
   }
 }
 
