@@ -110,3 +110,90 @@ void loop() {
           digitalWrite(LED_BUILTIN, LOW);
     }
 }
+
+// 0: stop 1: Forward 2: Backward 3: Left 4: Right 5: Rotate Right 6 : Rotate Left 7: front left 8: front right
+void carMove(int active){
+  if(active == 0){
+    for(int i = 1; i <= 4; i++){
+      tiresMove(i, 0);
+    }
+  }else if(active == 1){
+    for(int i = 1; i <= 4; i++){
+      tiresMove(i, 1);
+    }
+  }else if(active == 2){
+    for(int i = 1; i <= 4; i++){
+      tiresMove(i, 2);
+    }
+  }else if(active == 3){
+    tiresMove(1, 2);
+    tiresMove(2, 2);
+    tiresMove(3, 1);
+    tiresMove(4, 1);
+  }else if(active == 4){
+    tiresMove(1, 1);
+    tiresMove(2, 1);
+    tiresMove(3, 2);
+    tiresMove(4, 2);
+  }else if(active == 5){
+    tiresMove(1, 1);
+    tiresMove(2, 2);
+    tiresMove(3, 1);
+    tiresMove(4, 2);
+  }else if(active == 6){
+    tiresMove(1, 2);
+    tiresMove(2, 1);
+    tiresMove(3, 2);
+    tiresMove(4, 1);
+  }else if(active == 7){
+    tiresMove(1, 2);
+    tiresMove(2, 0);
+    tiresMove(3, 0);
+    tiresMove(4, 1);
+  }else if(active == 8){
+    tiresMove(1, 1);
+    tiresMove(2, 0);
+    tiresMove(3, 0);
+    tiresMove(4, 2);
+  }
+}
+
+// tire 1: Left Front 2: Right Rear 3: Left Rear 4: Right Front  direction 0: stop  1: forward 2: backward
+void tiresMove(int tire, int direction){
+  switch (tire){  
+  case 1:
+    tireState(leftMotor1Pin1, leftMotor1Pin2, direction);
+    break;
+  case 2:
+    tireState(rightMotor1Pin1, rightMotor1Pin2, direction);
+    break;
+  case 3:
+    tireState(leftMotor2Pin1, leftMotor2Pin2, direction);
+    break;
+  case 4:
+    tireState(rightMotor2Pin1, rightMotor2Pin2, direction);
+    break;
+  default:
+    break;
+  }
+}
+
+// 0: stop  1: forward 2: backward
+void tireState(int pin1, int pin2, int state){
+  switch (state){
+  case 0:
+    digitalWrite(pin1, LOW);
+    digitalWrite(pin2, LOW);
+    break;
+  case 1:
+    digitalWrite(pin1, HIGH);
+    digitalWrite(pin2, LOW);
+    break;
+  case 2:
+    digitalWrite(pin1, LOW);
+    digitalWrite(pin2, HIGH);
+    break;
+  default:
+    break;
+  }
+}
