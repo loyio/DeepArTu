@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
 
 # C extensions
 *.so
@@ -131,3 +132,19 @@ dmypy.json
 
 # Mac
 .DS_Store
+
+# Dataset
+*.mp4
+software/road-sign-recognition/data-collect/images
+software/road-sign-recognition/Tensorflow/workspace
+software/lanenet-lane-detection/data_collect/images
+software/lanenet-lane-detection/data_annotation/json_data
+
+# Models
+software/road-sign-recognition/Tensorflow/workspace/models
+software/lanenet-lane-detection/model
+
+
+# tfrecords
+software/lanenet-lane-detection/data/deepartu/tfrecords
+*.tfrecords
