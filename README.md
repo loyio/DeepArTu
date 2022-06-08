@@ -1,2 +1,2 @@
 # DeepArTu
-Arduino car with object detection using deep learning
+Arduino car with Lane Detection and Road Sign Recognition using deep learning
