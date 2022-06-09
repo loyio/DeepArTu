@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# @Time    : 2019/12/13 上午11:17
 # @Author  : PaddlePaddle
 # @Site    : https://github.com/PaddlePaddle/PaddleSeg
 # @File    : parse_config_utils.py

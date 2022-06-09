@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# @Time    : 18-5-11 下午3:48
 # @Author  : MaybeShewill-CV
 # @Site    : https://github.com/MaybeShewill-CV/lanenet-lane-detection
 # @File    : lanenet_discriminative_loss.py
