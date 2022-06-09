@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# @Time    : 19-4-24 下午9:33
 # @Author  : MaybeShewill-CV
 # @Site    : https://github.com/MaybeShewill-CV/lanenet-lane-detection
 # @File    : train_lanenet_tusimple.py

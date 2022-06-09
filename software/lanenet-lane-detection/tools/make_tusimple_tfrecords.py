@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# @Time    : 2020/5/8 下午8:29
 # @Author  : MaybeShewill-CV
 # @Site    : https://github.com/MaybeShewill-CV/bisenetv2-tensorflow
 # @File    : make_tusimple_tfrecords.py

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# @Time    : 18-5-23 上午11:33
 # @Author  : MaybeShewill-CV
 # @Site    : https://github.com/MaybeShewill-CV/lanenet-lane-detection
 # @File    : test_lanenet.py
+# @Update  : Loyio
 # @IDE: PyCharm Community Edition
 """
 test LaneNet model on single image
@@ -46,6 +46,7 @@ def init_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--image_path', type=str, help='The image path or the src image save dir')
     parser.add_argument('--weights_path', type=str, help='The model weights path')
+    parser.add_argument('--with_lane_fit', type=args_str2bool, help='If need to do lane fit', default=True)
 
     return parser.parse_args()
 
@@ -79,11 +80,12 @@ def minmax_scale(input_arr):
     return output_arr
 
 
-def test_lanenet(image_path, weights_path):
+def test_lanenet(image_path, weights_path, with_lane_fit=True):
     """
 
     :param image_path:
     :param weights_path:
+    :param with_lane_fit:
     :return:
     """
     assert ops.exists(image_path), '{:s} not exist'.format(image_path)
@@ -133,9 +135,16 @@ def test_lanenet(image_path, weights_path):
         postprocess_result = postprocessor.postprocess(
             binary_seg_result=binary_seg_image[0],
             instance_seg_result=instance_seg_image[0],
-            source_image=image_vis
+            source_image=image_vis,
+            with_lane_fit=with_lane_fit,
+            data_source='tusimple'
         )
         mask_image = postprocess_result['mask_image']
+        if with_lane_fit:
+            lane_params = postprocess_result['fit_params']
+            LOG.info('Model have fitted {:d} lanes'.format(len(lane_params)))
+            for i in range(len(lane_params)):
+                LOG.info('Fitted 2-order lane {:d} curve param: {}'.format(i+1, lane_params[i]))
 
         for i in range(CFG.MODEL.EMBEDDING_FEATS_DIMS):
             instance_seg_image[0][:, :, i] = minmax_scale(instance_seg_image[0][:, :, i])
@@ -163,4 +172,4 @@ if __name__ == '__main__':
     # init args
     args = init_args()
 
-    test_lanenet(args.image_path, args.weights_path)
+    test_lanenet(args.image_path, args.weights_path, with_lane_fit=args.with_lane_fit)

@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# @Author  : Loyio
+# @Site    : https://github.com/loyio/DeepArTu
+# @File    : test_lanenet.py
+# @IDE: Neovim
 """
 Evaluate lanenet model on deepartu lane dataset
 """
 import argparse
-import glob
 import os
 import os.path as ops
 import time
@@ -35,8 +38,24 @@ def init_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--src_video', type=str, help='The source deepartu lane test data')
     parser.add_argument('--weights_path', type=str, help='The model weights path')
+    parser.add_argument('--with_lane_fit', type=args_str2bool, help='If need to do lane fit', default=True)
 
     return parser.parse_args()
+
+
+def args_str2bool(arg_value):
+    """
+
+    :param arg_value:
+    :return:
+    """
+    if arg_value.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+
+    elif arg_value.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Unsupported value encountered.')
 
 
 def minmax_scale(input_arr):
@@ -54,11 +73,12 @@ def minmax_scale(input_arr):
 
 
 
-def eval_lanenet(src_video, weights_path):
+def eval_lanenet(src_video, weights_path, with_lane_fit=True):
     """
 
     :param src_dir:
     :param weights_path:
+    :param with_lane_fit:
     :param save_dir:
     :return:
     """
@@ -72,8 +92,9 @@ def eval_lanenet(src_video, weights_path):
     postprocessor = lanenet_postprocess.LaneNetPostProcessor(cfg=CFG)
 
     cap = cv2.VideoCapture(src_video)
-    # fourcc = cv2.VideoWriter_fourcc(*'X264')
-    # out = cv2.VideoWriter('output-binary.mp4', fourcc, 29.97, (512, 256))
+    fourcc = cv2.VideoWriter_fourcc(*'X264')
+    # out = cv2.VideoWriter('output-src.mp4', fourcc, 29.97, (1280, 720))
+    out = cv2.VideoWriter('output-mask.mp4', fourcc, 29.97, (512, 256))
 
     saver = tf.compat.v1.train.Saver()
 
@@ -101,9 +122,16 @@ def eval_lanenet(src_video, weights_path):
             postprocess_result = postprocessor.postprocess(
                 binary_seg_result=binary_seg_image[0],
                 instance_seg_result=instance_seg_image[0],
-                source_image=image_vis
+                source_image=image_vis,
+                with_lane_fit=with_lane_fit,
+                data_source='tusimple'
             )
             mask_image = postprocess_result['mask_image']
+            if with_lane_fit:
+                lane_params = postprocess_result['fit_params']
+                LOG.info('Model have fitted {:d} lanes'.format(len(lane_params)))
+                for i in range(len(lane_params)):
+                    LOG.info('Fitted 2-order lane {:d} curve param: {}'.format(i+1, lane_params[i]))
 
             for i in range(CFG.MODEL.EMBEDDING_FEATS_DIMS):
                 instance_seg_image[0][:, :, i] = minmax_scale(instance_seg_image[0][:, :, i])
@@ -116,6 +144,7 @@ def eval_lanenet(src_video, weights_path):
             # print("embedding_image[:, :, (2, 1, 0)]: ",embedding_image[:, :, (2, 1, 0)].shape)
 
             binary_image_rgb = np.empty([256, 512, 3])
+            black_image = np.zeros([256, 512, 3], np.uint8)
             for i in range(binary_image.shape[0]):
                 for j in range(binary_image.shape[1]):
                     bint = binary_image[i][j]
@@ -133,14 +162,21 @@ def eval_lanenet(src_video, weights_path):
 
             # cv2.imshow("frame", hh_frame)
 
-            # out.write(binary_image_rgb*255)
+            if mask_image is None : 
+                img_show = black_image
+            else :
+                img_show = mask_image[:, :, (2, 1, 0)]
+
+            out.write(img_show)
 
 
             # cv2.imshow("Frame", image)
             # cv2.imshow("frame", embedding_image[:, :, (2, 1, 0)])
             # cv2.imshow("frame", binary_image * 255)
-            cv2.imshow("frame", binary_image*255)
-
+            # cv2.imshow("frame", mask_image[:, :, (2, 1, 0)])
+            # cv2.imshow("frame", image_vis[:, :, (2, 1, 0)])
+            
+            
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
@@ -161,4 +197,5 @@ if __name__ == '__main__':
     eval_lanenet(
         src_video=args.src_video,
         weights_path=args.weights_path,
+        with_lane_fit=args.with_lane_fit
     )
